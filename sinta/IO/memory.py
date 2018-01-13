@@ -93,7 +93,7 @@ class RootManager(object):
 
     def check(self, codes):
         for code in codes:
-            stock = self[code]
+            stock = self.get(code)
             try:
                 stock.check()
                 stock.flush()

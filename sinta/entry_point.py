@@ -54,6 +54,13 @@ def check_freq(code, freq, start, end, cover=False):
     manager.check_freq(freq, code, start, end, cover)
 
 
+@check.command(name="tick")
+@DEFAULT_CODE
+def check_tick(code):
+    manager = IndexManager.conf()
+    manager.rm.check(code)
+
+
 write = click.Group("write")
 
 
