@@ -52,9 +52,12 @@ def init_log():
     if os.path.isfile(log_conf_path):
         logging.config.fileConfig(log_conf_path)
     else:
-        if LOG_DIR:
+        if LOG_DIR is not None:
+            from datetime import date
+
+            file_name = os.path.join(LOG_DIR, "sinta_log.%s" % date.today())
             logging.basicConfig(
-                handlers=[logging.StreamHandler(), logging.FileHandler(LOG_DIR, encoding='utf-8')],
+                handlers=[logging.StreamHandler(), logging.FileHandler(file_name, encoding='utf-8')],
                 datefmt=DATEFMT,
                 format=FORMAT,
                 level=LEVEL
