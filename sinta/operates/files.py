@@ -29,17 +29,18 @@ class IndexManager(object):
             data[status] = 0
         return data
 
-    def create_index(self, code, start="", end=""):
-        index = self.get_index(code, start, end)
+    def create_index(self, code, start="", end="", cover=False):
         stock = self.rm.get(code)
-        stock.index = index
-        stock.flush()
-        return index
+        if cover or not stock.has_index:
+            index = self.get_index(code, start, end)
+            stock.index = index
+            stock.flush()
+        return stock.index
 
-    def create_indexes(self, codes, start="", end=""):
+    def create_indexes(self, codes, start="", end="", cover=False):
         for code in codes:
             try:
-                index = self.create_index(code, start, end)
+                index = self.create_index(code, start, end, cover)
             except Exception as e:
                 logging.error('%s | %s-%s | %s', code, start, end, e)
             else:
@@ -98,3 +99,12 @@ class IndexManager(object):
     def has_index(self, code):
         return self.rm[code].has_index
 
+    def delete(self, codes, start=None, end=None):
+        for code in codes:
+            try:
+                deleted = self.rm.delete(code, start, end)
+                count = len(deleted)
+            except Exception as e:
+                logging.error("delete tick | %s | %s-%s | %s ", code, start, end, e)
+            else:
+                logging.warning("delete tick | %s | %s-%s | %s ", code, start, end, count)

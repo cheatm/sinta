@@ -104,10 +104,20 @@ index = click.Group("index")
 @index.command(name="create")
 @START
 @END
+@COVER
 @DEFAULT_CODE
-def create(code, start, end):
+def create(code, start, end, cover=False):
     manager = IndexManager.conf()
-    manager.create_indexes(code, start, end)
+    manager.create_indexes(code, start, end, cover)
+
+
+@index.command(name="delete")
+@START
+@END
+@DEFAULT_CODE
+def delete(code, start, end):
+    manager = IndexManager.conf()
+    manager.delete(code, start, end)
 
 
 group = click.Group(

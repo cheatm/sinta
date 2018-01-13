@@ -109,6 +109,20 @@ class RootManager(object):
             os.makedirs(path, exist_ok=True)
         return StockDir(self.stock_dir(item), item)
 
+    def delete(self, code, start=None, end=None):
+        stock = self.get(code)
+        return list(self._delete_tick(stock, start, end))
+
+    def _delete_tick(self, stock, start=None, end=None):
+        for date in stock.find({"tick": 1}, start, end):
+            try:
+                del stock[date]
+            except Exception as e:
+                logging.error("delete tick | %s | %s | %s", stock, date, e)
+            else:
+                yield date
+
+
     def __getitem__(self, item):
         if item in self._stocks:
             return self._stocks[item]
