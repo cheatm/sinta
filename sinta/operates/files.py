@@ -93,7 +93,7 @@ class IndexManager(object):
     def _require_range(self, stocks, start, end):
         for code in stocks:
             stock = self.rm[code]
-            for date in stock.find_dates("tick", 0, slice(start, end)):
+            for date in stock.find({"tick": 0}, start, end):
                 yield stock, date
 
     def has_index(self, code):

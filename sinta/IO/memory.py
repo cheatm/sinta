@@ -45,23 +45,19 @@ class StockDir(object):
         return datetime.strptime(' '.join((date, time)), "%Y-%m-%d %H:%M:%S")
 
     def find(self, filters, start=None, end=None):
-        frame = self.index.ix[slice(start, end)]
-        bs = pd.DataFrame({key: frame[key] == value for key, value in filters.items()}).product(axis=1)
-        return frame[bs==1].index
+        try:
+            frame = self.index.ix[slice(start, end)]
+            bs = pd.DataFrame({key: frame[key] == value for key, value in filters.items()}).product(axis=1)
+            return frame[bs==1].index
+        except:
+            return pd.Index()
 
     def dates(self, start=None, end=None):
         return self.index.ix[slice(start, end)].index
 
-    def find_dates(self, col, value, sl=None):
-        if isinstance(sl, slice):
-            frame = self.index.ix[sl, col]
-            return frame[frame==value].index
-        else:
-            return self.index[col][self.index[col]==value].index
-
     def check(self):
         count = 0
-        for date in self.find_dates('tick', 0):
+        for date in self.find({'tick': 0}):
             if os.path.exists(self.tick_path(date)):
                 self.fill(date, "tick")
                 count += 1
