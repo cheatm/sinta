@@ -13,7 +13,11 @@ class StockDir(object):
         self.code = code
         self.index_path = os.path.join(self.root, 'index.csv')
         if self.has_index:
-            self.index = pd.read_csv(self.index_path, index_col="date")
+            try:
+                self.index = pd.read_csv(self.index_path, index_col="date")
+            except Exception as e:
+                logging.error("load index | %s | fail | %s", code, e)
+                self.index = pd.DataFrame()
         else:
             self.index = pd.DataFrame()
 
