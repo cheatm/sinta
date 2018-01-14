@@ -50,7 +50,7 @@ class StockDir(object):
             bs = pd.DataFrame({key: frame[key] == value for key, value in filters.items()}).product(axis=1)
             return frame[bs==1].index
         except:
-            return pd.Index()
+            return []
 
     def dates(self, start=None, end=None):
         return self.index.ix[slice(start, end)].index
