@@ -102,13 +102,13 @@ index = click.Group("index")
 
 
 @index.command(name="create")
-@START
-@END
+@click.option('-s', '--start', default="", type=click.STRING)
+@click.option('-e', '--end', default="", type=click.STRING)
 @COVER
 @DEFAULT_CODE
 def create(code, start, end, cover=False):
     manager = IndexManager.conf()
-    manager.create_indexes(code, start, end, cover)
+    manager.create_indexes(code, start if start else "", end if end else "", cover)
 
 
 @index.command(name="delete")
@@ -129,6 +129,4 @@ group = click.Group(
 
 
 if __name__ == '__main__':
-    # import sys
-    # sys.argv.extend("write".split(" "))
     group()
