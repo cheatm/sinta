@@ -62,6 +62,10 @@ class DBManager(object):
 
     def _check(self, stock, count, tag, db, start=None, end=None, cover=False):
         collection = self.client[db][self.expand(stock.code)]
+        if "datetime_1" not in collection.index_information():
+            collection.create_index("datetime", unique=True, background=True)
+            logging.warning("%s | create index datetime_1", collection)
+
         if cover:
             dates = stock.dates(start, end)
         else:
@@ -87,6 +91,7 @@ class DBManager(object):
             stock = self.rm[code]
             if cover:
                 dates = stock.find({"tick": 1}, start, end)
+                how="update"
             else:
                 dates = stock.find({"tick": 1, 'min1': 0}, start, end)
             for date in dates:
@@ -113,26 +118,27 @@ class DBManager(object):
 
             if cover:
                 find = {"min1": 1}
+                how = "update"
             else:
                 find = {"min1": 1, f: 0}
-
             for code in codes:
                 stock = self.rm[code]
-                if cover:
-                    dates = stock.find(find, start, end)
-                else:
-                    dates = stock.find(find, start, end)
+                dates = stock.find(find, start, end)
                 self.write_freq(fs, code, dates, how)
 
     def write_freq(self, freq, code, dates, how="insert"):
-        code = self.expand(code)
+        if len(dates) == 0:
+            logging.warning("%s | %s | empty dates", freq, code)
+            return
+
+        col = self.expand(code)
         try:
-            data = read(self.client[config.MIN1][code], *dates)
-            result = self._write_freq(data, code, freq, how)
+            data = read(self.client[config.MIN1][col], *dates)
+            result = self._write_freq(data, col, freq, how)
         except Exception as e:
             logging.error("%s | %s | %s | %s...%s | %s", freq, code, how, dates[0], dates[-1], e)
         else:
-            logging.error("%s | %s | %s | %s...%s | %s", freq, code, how, dates[0], dates[-1], result)
+            logging.warning("%s | %s | %s | %s...%s | %s", freq, code, how, dates[0], dates[-1], result)
 
     def _write_freq(self, data, code, freq, how="insert"):
         write = globals()[how]

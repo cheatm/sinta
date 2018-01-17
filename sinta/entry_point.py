@@ -11,22 +11,21 @@ codes.init()
 CODE = click.argument('code', required=False, nargs=-1)
 START = click.option('-s', '--start', default=None, type=click.STRING)
 END = click.option('-e', '--end', default=None, type=click.STRING)
-COVER = click.option("-c", "--cover", is_flag=True, default=True)
+COVER = click.option("-c", "--cover", is_flag=True, default=False)
 HOW = click.option("-h", "--how", default="insert", type=click.STRING)
 FREQ = click.option("-f", "--freq", default=",".join(config.FREQ), type=click.STRING)
 
 
 def DEFAULT_CODE(func):
-    wrapped_func = CODE(func)
 
     def wrapped(**kwargs):
         code = kwargs.get("code", [])
         if len(code) == 0:
             kwargs["code"] = codes.STOCKS
-        return wrapped_func(**kwargs)
+        return func(**kwargs)
 
     wrapped.__name__ = func.__name__
-    return wrapped
+    return CODE(wrapped)
 
 
 check = click.Group("check")
@@ -39,7 +38,7 @@ check = click.Group("check")
 @DEFAULT_CODE
 def check_master(code, start, end, cover=False):
     manager = DBManager.conf()
-    manager.check_master(code, start, end)
+    manager.check_master(code, start, end, cover)
 
 
 @check.command(name="freq")
@@ -68,6 +67,7 @@ write = click.Group("write")
 @START
 @END
 @COVER
+@HOW
 @DEFAULT_CODE
 def write_master(code, start, end, how, cover=False):
     manager = DBManager.conf()
@@ -126,6 +126,12 @@ group = click.Group(
               "require": require,
               "index": index}
 )
+
+
+@group.command()
+def conf():
+    text = "\n".join(["{} = {}".format(key, getattr(config, key)) for key in config.KEYS])
+    click.echo(text)
 
 
 if __name__ == '__main__':
