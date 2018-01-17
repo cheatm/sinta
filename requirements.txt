@@ -4,4 +4,5 @@ lxml==3.8.0
 pymongo==3.6.0
 requests==2.18.4
 six>=1.10.0
+pandas==0.20.1
 #tushare>=1.0.0

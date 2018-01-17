@@ -120,6 +120,15 @@ def delete(code, start, end):
     manager.delete(code, start, end)
 
 
+@index.command(name="update")
+@START
+@END
+@DEFAULT_CODE
+def update(code, start, end):
+    manager = IndexManager.conf()
+    manager.update_indexes(code, start if start else "", end if end else "")
+
+
 group = click.Group(
     commands={"write": write,
               "check": check,

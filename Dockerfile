@@ -1,9 +1,19 @@
 FROM registry.docker-cn.com/library/python:3.6
 
-RUN apt-get update & apt-get install cron
+ENV SINTA_ROOT="/data"
+ADD . /sinta
+WORKDIR /sinta
 
-RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple git+https://github.com/cheatm/sinta.git
-RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple tushare
+RUN apt-get update
+RUN apt-get install -y cron
+# RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple git+https://github.com/cheatm/sinta.git
+RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt --no-cache-dir
+RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple tushare --no-cache-dir
 RUN echo 'Asia/Shanghai' >/etc/timezone & cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+RUN echo "export SINTA_ROOT=/data; export WORKDIR=/sinta/sinta; export PYTHONPATH=/sinta" > /etc/profile.d/env.sh
 
+WORKDIR /sinta/sinta
+
+
+VOLUME ["/data"]
 
