@@ -1,0 +1,1 @@
+45 21 * * 1-5 /bin/bash /sinta/routing/commands.sh >> "/data/log/sinta_log.`date +\%Y-\%m-\%d`" 2>&1
