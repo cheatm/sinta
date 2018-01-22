@@ -1,6 +1,6 @@
 FROM registry.docker-cn.com/library/python:3.6
 
-ENV SINTA_ROOT="/data"
+ENV SINTA_ROOT="/data" PYTHONPATH=/sinta:$PYTHONPATH
 ADD . /sinta
 WORKDIR /sinta
 
