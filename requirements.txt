@@ -2,6 +2,7 @@ bs4==0.0.1
 click==6.7
 lxml==3.8.0
 pymongo==3.6.0
-requrests==2.18.4
+requests==2.18.4
 six>=1.10.0
-tushare>=1.0.0
+pandas==0.20.1
+#tushare>=1.0.0

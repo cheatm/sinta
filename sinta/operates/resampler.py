@@ -20,8 +20,8 @@ PRICE_MAP = {
 }
 
 
-VA = ["volume", "amount"]
-COLUMNS = ['close', "open", "high", "low", "volume", "amount"]
+VT = ["volume", "turnover"]
+COLUMNS = ['close', "open", "high", "low", "volume", "turnover"]
 
 
 RESAMPLE_MAP = {
@@ -30,7 +30,7 @@ RESAMPLE_MAP = {
     "high": "max",
     "low": "min",
     "volume": "sum",
-    "amount": "sum"
+    "turnover": "sum"
 }
 
 
@@ -54,10 +54,11 @@ def tick2min1(frame, date):
         data = frame.rename_axis(timer)
         grouper = data.groupby(data.index)
         result = grouper["price"].agg(PRICE_MAP)
-        result[VA] = grouper[VA].agg(sum)
+        result["volume"] = grouper["volume"].agg(sum)
+        result["turnover"] = grouper["amount"].agg(sum)
         index = date2index(date)
         result = pd.DataFrame(result, index, COLUMNS)
-        result[VA] = result[VA].fillna(0)
+        result[VT] = result[VT].fillna(0)
         result["close"].ffill(inplace=True)
         result["open"].bfill(inplace=True)
         return result.ffill(1).bfill(1)

@@ -13,7 +13,11 @@ class StockDir(object):
         self.code = code
         self.index_path = os.path.join(self.root, 'index.csv')
         if self.has_index:
-            self.index = pd.read_csv(self.index_path, index_col="date")
+            try:
+                self.index = pd.read_csv(self.index_path, index_col="date")
+            except Exception as e:
+                logging.error("load index | %s | fail | %s", code, e)
+                self.index = pd.DataFrame()
         else:
             self.index = pd.DataFrame()
 
@@ -45,23 +49,19 @@ class StockDir(object):
         return datetime.strptime(' '.join((date, time)), "%Y-%m-%d %H:%M:%S")
 
     def find(self, filters, start=None, end=None):
-        frame = self.index.ix[slice(start, end)]
-        bs = pd.DataFrame({key: frame[key] == value for key, value in filters.items()}).product(axis=1)
-        return frame[bs==1].index
+        try:
+            frame = self.index.ix[slice(start, end)]
+            bs = pd.DataFrame({key: frame[key] == value for key, value in filters.items()}).product(axis=1)
+            return frame[bs==1].index
+        except:
+            return []
 
     def dates(self, start=None, end=None):
         return self.index.ix[slice(start, end)].index
 
-    def find_dates(self, col, value, sl=None):
-        if isinstance(sl, slice):
-            frame = self.index.ix[sl, col]
-            return frame[frame==value].index
-        else:
-            return self.index[col][self.index[col]==value].index
-
     def check(self):
         count = 0
-        for date in self.find_dates('tick', 0):
+        for date in self.find({'tick': 0}):
             if os.path.exists(self.tick_path(date)):
                 self.fill(date, "tick")
                 count += 1
@@ -93,7 +93,7 @@ class RootManager(object):
 
     def check(self, codes):
         for code in codes:
-            stock = self[code]
+            stock = self.get(code)
             try:
                 stock.check()
                 stock.flush()
@@ -108,6 +108,20 @@ class RootManager(object):
         if not os.path.isdir(path):
             os.makedirs(path, exist_ok=True)
         return StockDir(self.stock_dir(item), item)
+
+    def delete(self, code, start=None, end=None):
+        stock = self.get(code)
+        return list(self._delete_tick(stock, start, end))
+
+    def _delete_tick(self, stock, start=None, end=None):
+        for date in stock.find({"tick": 1}, start, end):
+            try:
+                del stock[date]
+            except Exception as e:
+                logging.error("delete tick | %s | %s | %s", stock, date, e)
+            else:
+                yield date
+
 
     def __getitem__(self, item):
         if item in self._stocks:
