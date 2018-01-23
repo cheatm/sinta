@@ -95,7 +95,7 @@ class DBManager(object):
                 except Exception as e:
                     logging.error("min1 | %s | %s | %s | %s", code, date, how, e)
                 else:
-                    logging.error("min1 | %s | %s | %s | %s", code, date, how, result)
+                    logging.warning("min1 | %s | %s | %s | %s", code, date, how, result)
 
     def _write_master(self, stock, date, how="insert"):
         write = globals()[how]
