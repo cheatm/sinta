@@ -102,3 +102,15 @@ def daily(code, start="", end=""):
     data["volume"] *= 100
     return data
 
+from datetime import datetime
+
+
+def daily_index(code, start="", end=""):
+    data = tushare.get_k_data(code, start, end, index=True).set_index("date")
+    data.pop("code")
+    data["volume"] *= 100
+    return data.rename(lambda t: datetime.strptime(t, "%Y-%m-%d").replace(hour=15))
+
+
+if __name__ == '__main__':
+    print(daily_index("000001", "2017-01-01"))

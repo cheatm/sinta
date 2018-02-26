@@ -122,7 +122,6 @@ class RootManager(object):
             else:
                 yield date
 
-
     def __getitem__(self, item):
         if item in self._stocks:
             return self._stocks[item]

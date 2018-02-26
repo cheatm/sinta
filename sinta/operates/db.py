@@ -3,6 +3,7 @@ from pymongo import MongoClient
 from sinta.IO.memory import RootManager, conf_manager
 from sinta.operates import resampler
 from sinta.IO.mongodb import insert, update, length, read
+from sinta.IO.sina import daily_index
 from sinta import config
 import logging
 
@@ -171,3 +172,17 @@ class DBManager(object):
             return code + ".XSHG"
         else:
             return code + ".XSHE"
+
+    def save_indexes(self, code, start="", end=""):
+        for c in code:
+            self.save_indexes(c, start, end)
+
+    def save_index(self, code, start="", end=""):
+        try:
+            name = code[:6]
+            data = daily_index(name, start, end)
+            result = update(self.client[config.D][code], data)
+        except Exception as e:
+            logging.error("idx | %s | %s", code, e)
+        else:
+            logging.warning("idx | %s | %s", code, result)

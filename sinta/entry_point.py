@@ -86,6 +86,18 @@ def writer_freq(code, freq, start, end, how, cover=False):
     manager.write_freqs(freq, code, start, end, how, cover)
 
 
+@write.command(name="idx")
+@START
+@END
+@CODE
+def write_idx(code, start, end):
+    if len(code) == 0:
+        code = codes.INDEXES
+    manager = DBManager.conf()
+    manager.save_indexes(code, start, end)
+
+
+
 require = click.Group("require")
 
 
