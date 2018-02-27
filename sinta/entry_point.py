@@ -93,6 +93,12 @@ def writer_freq(code, freq, start, end, how, cover=False):
 def write_idx(code, start, end):
     if len(code) == 0:
         code = codes.INDEXES
+
+    if start is None:
+        start = ""
+    if end is None:
+        end = ""
+
     manager = DBManager.conf()
     manager.save_indexes(code, start, end)
 
