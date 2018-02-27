@@ -180,7 +180,7 @@ class DBManager(object):
 
     def save_indexes(self, code, start="", end=""):
         for c in code:
-            self.save_indexes(c, start, end)
+            self.save_index(c, start, end)
 
     def save_index(self, code, start="", end=""):
         try:
