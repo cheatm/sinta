@@ -73,19 +73,24 @@ class DBManager(object):
             dates = stock.find({tag: 0}, start, end)
 
         success = 0
-        for date in self._check_date(collection, count, dates):
-            stock.fill(date, tag)
-            success += 1
+        # for date in self._check_date(collection, count, dates):
+        #     stock.fill(date, tag)
+        #     success += 1
+        for date in dates:
+            if self._check_date(collection, count, date):
+                stock.fill(date, tag)
+                success += 1
+            else:
+                stock.empty(date, tag)
+
         return "%s/%s" % (success, len(dates))
 
     @staticmethod
-    def _check_date(collection, count, dates):
-        for date in dates:
-            try:
-                if length(collection, date) == count:
-                    yield date
-            except:
-                pass
+    def _check_date(collection, count, date):
+        try:
+            return length(collection, date) == count
+        except:
+            return False
 
     def write_master(self, codes, start=None, end=None, how="insert", cover=False):
         for code in codes:
