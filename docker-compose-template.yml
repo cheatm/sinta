@@ -1,0 +1,16 @@
+version: '3'
+services:
+  sinta:
+    container_name: sinta
+    build: .
+    image: sinta
+    volumes:
+      - type: volume
+        source: data
+        target: /data
+      - type: volume
+        source: logs
+        target: /logs
+volumes:
+  data: 
+  logs: 
