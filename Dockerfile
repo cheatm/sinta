@@ -8,7 +8,7 @@ ADD . /sinta
 WORKDIR /sinta
 
 ENV SINTA_ROOT="/data" LC_ALL="C.UTF-8" LANG="C.UTF-8"
-RUN ln -s routing/env.sh /etc/profile.d/env.sh
+RUN ln -s /sinta/routing/env.sh /etc/profile.d/env.sh
 
 RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt --no-cache-dir
 RUN pip install -i https://pypi.tuna.tsinghua.edu.cn/simple tushare --no-cache-dir
