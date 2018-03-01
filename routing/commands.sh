@@ -9,4 +9,3 @@ sinta write master
 sinta check master
 sinta write freq
 sinta check freq
-sinta write idx
