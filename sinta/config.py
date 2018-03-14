@@ -6,7 +6,7 @@ import os
 
 ROOT = os.environ.get("SINTA_ROOT", "/data")
 MONGODB_URL = "mongodb://localhost:27017"
-MIN1 = 'stock_1min'
+MIN1 = 'Stock_1M'
 H = "Stock_H"
 D = "Stock_D"
 FREQ = ["H", "D"]

@@ -2,10 +2,15 @@
 from pymongo import MongoClient
 from sinta.IO.memory import RootManager, conf_manager
 from sinta.operates import resampler
-from sinta.IO.mongodb import insert, update, length, read
+from sinta.IO.mongodb import insert, update, length, read, \
+    update_chunk_1min, insert_chunk_1min, chunk_length, read_chunk
 from sinta.IO.sina import daily_index
 from sinta import config
 import logging
+
+
+CHUNK_METHODS = {"insert": insert_chunk_1min,
+                 "update": update_chunk_1min}
 
 
 class FreqStructure:
@@ -54,30 +59,29 @@ class DBManager(object):
 
     def _check_master(self, stock, start=None, end=None, cover=False):
         try:
-            result = self._check(stock, 240, "min1", config.MIN1, start, end, cover)
+            result = self._check(stock, 240, "min1", config.MIN1, start, end, cover, chunk_length, "_d")
             stock.flush()
         except Exception as e:
             logging.error('check master | %s | %s-%s | %s ', stock, start, end, e)
         else:
             logging.warning('check master | %s | %s-%s | %s ', stock, start, end, result)
 
-    def _check(self, stock, count, tag, db, start=None, end=None, cover=False):
+    def _check(self, stock, count, tag, db, start=None, end=None, cover=False, how=length, index="datetime"):
         collection = self.client[db][self.expand(stock.code)]
-        if "datetime_1" not in collection.index_information():
-            collection.create_index("datetime", unique=True, background=True)
-            logging.warning("%s | create index datetime_1", collection)
+        if "%s_1" % index not in collection.index_information():
+            collection.create_index(index, unique=True, background=True)
+            logging.warning("%s | create index %s_1", collection, index)
 
         if cover:
             dates = stock.dates(start, end)
         else:
             dates = stock.find({tag: 0}, start, end)
-
         success = 0
         # for date in self._check_date(collection, count, dates):
         #     stock.fill(date, tag)
         #     success += 1
         for date in dates:
-            if self._check_date(collection, count, date):
+            if self._check_date(collection, count, date, how):
                 stock.fill(date, tag)
                 success += 1
             else:
@@ -86,9 +90,9 @@ class DBManager(object):
         return "%s/%s" % (success, len(dates))
 
     @staticmethod
-    def _check_date(collection, count, date):
+    def _check_date(collection, count, date, how=length):
         try:
-            return length(collection, date) == count
+            return how(collection, date) == count
         except:
             return False
 
@@ -97,7 +101,7 @@ class DBManager(object):
             stock = self.rm[code]
             if cover:
                 dates = stock.find({"tick": 1}, start, end)
-                how="update"
+                how = "update"
             else:
                 dates = stock.find({"tick": 1, 'min1': 0}, start, end)
             for date in dates:
@@ -105,13 +109,15 @@ class DBManager(object):
                     result = self._write_master(stock, date, how)
                 except Exception as e:
                     logging.error("min1 | %s | %s | %s | %s", code, date, how, e)
+                    raise e
                 else:
                     logging.warning("min1 | %s | %s | %s | %s", code, date, how, result)
 
     def _write_master(self, stock, date, how="insert"):
-        write = globals()[how]
+        write = CHUNK_METHODS[how]
         tick = stock.parse(date)
         candle = resampler.tick2min1(tick, date)
+        candle.index.name = 'datetime'
         code = self.expand(stock.code)
         return write(self.client[config.MIN1][code], candle)
 
@@ -139,7 +145,8 @@ class DBManager(object):
 
         col = self.expand(code)
         try:
-            data = read(self.client[config.MIN1][col], *dates)
+            # data = read(self.client[config.MIN1][col], *dates)
+            data = read_chunk(self.client[config.MIN1][col], *dates)
             result = self._write_freq(data, col, freq, how)
         except Exception as e:
             logging.error("%s | %s | %s | %s...%s | %s", freq, code, how, dates[0], dates[-1], e)
