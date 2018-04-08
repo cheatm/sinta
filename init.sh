@@ -3,8 +3,6 @@
 if [ -n "$CREATE_OPTION" ]
 then
     sinta index create $CREATE_OPTION
-else
-    sinta index create
 fi
 
 if [ -n "$PRE_CHECK" ]
