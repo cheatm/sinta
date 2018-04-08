@@ -8,5 +8,6 @@ services:
       - ".:/data"
       - ".:/logs"
 #    environment:
+#      PRE_CHECK:
 #      CREATE_OPTION: "-s 2017-05-10"
 #      SYNC_TABLE: "update"
