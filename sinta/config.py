@@ -11,7 +11,7 @@ H = "Stock_H"
 D = "Stock_D"
 FREQ = ["H", "D"]
 
-
+LOG_COL = "log.sinta"
 LOG_DIR = None
 LEVEL = logging.WARNING
 
@@ -20,9 +20,6 @@ KEYS = ("ROOT", "MONGODB_URL", "MIN1", "H", "D", "FREQ", "LOG_DIR", "LEVEL")
 
 
 def update(dct):
-    for key in list(dct.keys()):
-        if key not in KEYS:
-            del dct[key]
     globals().update(dct)
 
 

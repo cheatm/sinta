@@ -7,3 +7,6 @@ services:
     volumes:
       - ".:/data"
       - ".:/logs"
+#    environment:
+#      CREATE_OPTION: "-s 2017-05-10"
+#      SYNC_TABLE: "update"

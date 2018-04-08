@@ -1,6 +1,8 @@
 from sinta import config, codes
 from sinta.operates.db import DBManager
 from sinta.operates.files import IndexManager
+from sinta.operates.table import SyncTable
+from functools import wraps
 import click
 
 
@@ -17,14 +19,13 @@ FREQ = click.option("-f", "--freq", default=",".join(config.FREQ), type=click.ST
 
 
 def DEFAULT_CODE(func):
-
+    @wraps(func)
     def wrapped(**kwargs):
         code = kwargs.get("code", [])
         if len(code) == 0:
             kwargs["code"] = codes.STOCKS
         return func(**kwargs)
 
-    wrapped.__name__ = func.__name__
     return CODE(wrapped)
 
 
@@ -103,7 +104,6 @@ def write_idx(code, start, end):
     manager.save_indexes(code, start, end)
 
 
-
 require = click.Group("require")
 
 
@@ -147,11 +147,33 @@ def update(code, start, end):
     manager.update_indexes(code, start if start else "", end if end else "")
 
 
+table = click.Group("table")
+
+
+@table.command("insert")
+@START
+@END
+@DEFAULT_CODE
+def insert_table(code, start, end):
+    st = SyncTable.conf()
+    st.insert(code=code, start=start, end=end)
+
+
+@table.command("update")
+@START
+@END
+@DEFAULT_CODE
+def update_table(code, start, end):
+    st = SyncTable.conf()
+    st.update(code=code, start=start, end=end)
+
+
 group = click.Group(
     commands={"write": write,
               "check": check,
               "require": require,
-              "index": index}
+              "index": index,
+              "table": table}
 )
 
 

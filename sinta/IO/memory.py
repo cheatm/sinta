@@ -8,9 +8,9 @@ import logging
 
 class StockDir(object):
 
-    def __init__(self, root, code):
+    def __init__(self, root, code=None):
         self.root = root
-        self.code = code
+        self.code = code if code is not None else os.path.split(root)[1]
         self.index_path = os.path.join(self.root, 'index.csv')
         if self.has_index:
             try:
@@ -23,6 +23,11 @@ class StockDir(object):
 
     def __str__(self):
         return self.code
+
+    def log(self, start=None, end=None):
+        log = self.index.loc[start:end, ["tick", "min1", "H", "D"]]
+        log["symbol"] = self.code
+        return log.set_index("symbol", append=True)
 
     @property
     def has_index(self):

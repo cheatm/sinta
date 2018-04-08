@@ -101,3 +101,4 @@ def get_docs(collection, filters=None, projection=None):
                 dct.setdefault(key, []).extend(values)
 
     return dct
+
