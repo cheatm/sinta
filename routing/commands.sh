@@ -9,4 +9,4 @@ sinta write master
 sinta check master
 sinta write freq
 sinta check freq
-sinta table update -s `date "1 day ago" +\%Y-\%m-\%d`
+sinta table update -s `date -d "1 day ago" +\%Y-\%m-\%d`
